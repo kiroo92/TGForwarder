@@ -30,8 +30,12 @@ def to_beijing_time(utc_time):
 
 @main_bp.context_processor
 def inject_now():
-    """向所有模板注入当前时间变量"""
-    return {'now': datetime.now()}
+    """向所有模板注入当前时间变量和认证状态"""
+    from app.auth import is_auth_enabled
+    return {
+        'now': datetime.now(),
+        'auth_enabled': is_auth_enabled()
+    }
 
 @main_bp.route('/')
 def index():

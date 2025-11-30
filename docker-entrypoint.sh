@@ -29,11 +29,18 @@ if [ -f "/app/config.yaml" ]; then
   TG_API_HASH=$(grep "api_hash:" /app/config.yaml | awk '{print $2}')
   # 从配置文件读取电话号码
   TG_PHONE=$(grep "phone:" /app/config.yaml | awk '{print $2}' | tr -d '"')
+  # 从配置文件读取Web API Key
+  WEB_API_KEY=$(grep "api_key:" /app/config.yaml | awk '{print $2}' | tr -d "'" | tr -d '"')
   
   log_info "已加载保存的配置信息"
   log_info "API ID: $TG_API_ID"
   log_info "API Hash: $TG_API_HASH"
   log_info "电话号码: $TG_PHONE"
+  if [ -n "$WEB_API_KEY" ]; then
+    log_info "Web API Key: 已配置"
+  else
+    log_info "Web API Key: 未配置（网页无需认证）"
+  fi
 else
   # 显示欢迎信息
   echo -e "\033[36m============================================\033[0m"
@@ -99,6 +106,16 @@ else
     echo -e "\033[31m配置已取消，容器将退出\033[0m"
     exit 1
   fi
+
+  # 输入Web API Key（可选）
+  echo
+  log_info "Web API Key 用于保护网页管理界面（可选）"
+  read -p "请输入Web API Key（留空则禁用网页认证）: " WEB_API_KEY
+  if [ -n "$WEB_API_KEY" ]; then
+    log_info "Web API Key 已设置，网页访问需要认证"
+  else
+    log_warn "Web API Key 未设置，网页将无需认证即可访问"
+  fi
 fi
 
 # 设置正确的权限
@@ -120,6 +137,11 @@ fi
 if [ -n "$TG_2FA_PASSWORD" ]; then
   log_info "发现Telegram二次验证密码配置"
   export TG_2FA_PASSWORD
+fi
+
+# 检查是否通过环境变量设置Web API Key
+if [ -n "$WEB_API_KEY" ]; then
+  log_info "通过环境变量设置Web API Key"
 fi
 
 # 设置自动确认
@@ -159,6 +181,9 @@ server:
 flask:
   database_uri: sqlite:////app/telegram_forwarder.db
   secret_key: dev_key
+
+auth:
+  api_key: '$WEB_API_KEY'  # 设置 API Key 启用网页认证，留空则禁用认证
 EOF
 
 # 初始化数据库

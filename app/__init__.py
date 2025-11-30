@@ -8,7 +8,7 @@ import os
 import asyncio
 import logging
 import yaml
-from flask import Flask
+from flask import Flask, redirect, url_for, session
 # 从dotenv import load_dotenv
 from app.models import db
 from app.telegram_client import init_telegram_client
@@ -37,12 +37,41 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = config['flask']['database_uri']
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
+    # 加载认证配置
+    auth_config = config.get('auth', {})
+    app.config['AUTH_API_KEY'] = auth_config.get('api_key', '') or ''
+    
     # 初始化数据库
     db.init_app(app)
     
     # 注册蓝图
     from app.routes import main_bp
+    from app.auth_routes import auth_bp
     app.register_blueprint(main_bp)
+    app.register_blueprint(auth_bp)
+    
+    # 注册认证中间件
+    @app.before_request
+    def check_authentication():
+        """请求前检查认证状态"""
+        from app.auth import is_auth_enabled, is_authenticated, is_public_route
+        from flask import request
+        
+        # 如果未启用认证，直接放行
+        if not is_auth_enabled():
+            return None
+        
+        # 公开路由直接放行
+        if is_public_route():
+            return None
+        
+        # 检查是否已认证
+        if not is_authenticated():
+            # 保存原始请求 URL
+            session['next_url'] = request.url
+            return redirect(url_for('auth.login'))
+        
+        return None
     
     # 在应用上下文中创建数据库表
     with app.app_context():

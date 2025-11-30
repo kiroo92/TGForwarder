@@ -67,3 +67,4 @@ Thumbs.db
 **/android/app/keystore.jks
 **/android/.gradle
 **/android/captures/ 
+.kiro/

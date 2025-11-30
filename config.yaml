@@ -8,3 +8,5 @@ telegram:
   api_id: 4862096
   phone: '+8618562620724'
   session_name: ''
+auth:
+  api_key: ''  # 设置 API Key 启用网页认证，留空则禁用认证
