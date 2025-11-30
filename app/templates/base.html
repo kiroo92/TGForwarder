@@ -80,7 +80,7 @@
                 {% if auth_enabled %}
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <form action="{{ url_for('auth.logout') }}" method="POST" class="d-inline">
+                        <form action="{{ url_for('auth.logout_page') }}" method="POST" class="d-inline">
                             <button type="submit" class="btn btn-outline-light btn-sm">
                                 <i class="bi bi-box-arrow-right"></i> 登出
                             </button>

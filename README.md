@@ -165,7 +165,7 @@ A Python-based Telegram channel forwarding tool that uses a regular user account
    -v $(pwd)/logs:/app/logs \
    -v $(pwd)/sessions:/app/sessions \
    -v $(pwd)/config.yaml:/app/config.yaml \
-   yanyuwangluo/telerelay:latest
+   bbbro/telerelay:latest
    ```
 
 2. View logs

@@ -23,8 +23,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 复制应用代码
 COPY . .
 
-# 设置入口脚本权限
-RUN chmod +x docker-entrypoint.sh
+# 转换行尾符并设置入口脚本权限
+RUN sed -i 's/\r$//' docker-entrypoint.sh && chmod +x docker-entrypoint.sh
 
 # 创建必要目录
 RUN mkdir -p /app/logs /app/sessions

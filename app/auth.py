@@ -87,8 +87,8 @@ def logout() -> None:
 
 # 公开路由列表（无需认证）
 PUBLIC_ROUTES = [
-    'auth.login',
-    'auth.logout', 
+    'auth.login_page',
+    'auth.logout_page', 
     'main.health_check',
 ]
 

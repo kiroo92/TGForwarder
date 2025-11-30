@@ -69,7 +69,7 @@ def create_app():
         if not is_authenticated():
             # 保存原始请求 URL
             session['next_url'] = request.url
-            return redirect(url_for('auth.login'))
+            return redirect(url_for('auth.login_page'))
         
         return None
     

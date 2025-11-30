@@ -20,6 +20,12 @@ mkdir -p /app/logs
 mkdir -p /app/sessions
 mkdir -p /app/instance
 
+# 保存环境变量中的值（如果有的话）
+ENV_TG_API_ID="$TG_API_ID"
+ENV_TG_API_HASH="$TG_API_HASH"
+ENV_TG_PHONE="$TG_PHONE"
+ENV_WEB_API_KEY="$WEB_API_KEY"
+
 # 检查是否存在配置文件
 if [ -f "/app/config.yaml" ]; then
   log_info "发现已存在的配置文件，正在读取..."
@@ -32,7 +38,25 @@ if [ -f "/app/config.yaml" ]; then
   # 从配置文件读取Web API Key
   WEB_API_KEY=$(grep "api_key:" /app/config.yaml | awk '{print $2}' | tr -d "'" | tr -d '"')
   
-  log_info "已加载保存的配置信息"
+  # 环境变量优先覆盖配置文件
+  if [ -n "$ENV_TG_API_ID" ]; then
+    TG_API_ID="$ENV_TG_API_ID"
+    log_info "使用环境变量覆盖 API ID"
+  fi
+  if [ -n "$ENV_TG_API_HASH" ]; then
+    TG_API_HASH="$ENV_TG_API_HASH"
+    log_info "使用环境变量覆盖 API Hash"
+  fi
+  if [ -n "$ENV_TG_PHONE" ]; then
+    TG_PHONE="$ENV_TG_PHONE"
+    log_info "使用环境变量覆盖电话号码"
+  fi
+  if [ -n "$ENV_WEB_API_KEY" ]; then
+    WEB_API_KEY="$ENV_WEB_API_KEY"
+    log_info "使用环境变量覆盖 Web API Key"
+  fi
+  
+  log_info "已加载配置信息"
   log_info "API ID: $TG_API_ID"
   log_info "API Hash: $TG_API_HASH"
   log_info "电话号码: $TG_PHONE"
@@ -89,6 +113,11 @@ else
     fi
   done
 
+  # 输入Web API Key（可选）
+  echo
+  log_info "Web API Key 用于保护网页管理界面（可选）"
+  read -p "请输入Web API Key（留空则禁用网页认证）: " WEB_API_KEY
+
   # 显示配置信息
   echo
   echo -e "\033[36m============================================\033[0m"
@@ -97,6 +126,11 @@ else
   echo -e "API ID: \033[32m$TG_API_ID\033[0m"
   echo -e "API Hash: \033[32m$TG_API_HASH\033[0m"
   echo -e "电话号码: \033[32m$TG_PHONE\033[0m"
+  if [ -n "$WEB_API_KEY" ]; then
+    echo -e "Web API Key: \033[32m已设置\033[0m"
+  else
+    echo -e "Web API Key: \033[33m未设置（网页无需认证）\033[0m"
+  fi
   echo -e "\033[36m============================================\033[0m"
   echo
 
@@ -105,16 +139,6 @@ else
   if [[ $confirm != "y" ]]; then
     echo -e "\033[31m配置已取消，容器将退出\033[0m"
     exit 1
-  fi
-
-  # 输入Web API Key（可选）
-  echo
-  log_info "Web API Key 用于保护网页管理界面（可选）"
-  read -p "请输入Web API Key（留空则禁用网页认证）: " WEB_API_KEY
-  if [ -n "$WEB_API_KEY" ]; then
-    log_info "Web API Key 已设置，网页访问需要认证"
-  else
-    log_warn "Web API Key 未设置，网页将无需认证即可访问"
   fi
 fi
 

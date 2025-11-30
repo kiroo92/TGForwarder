@@ -39,4 +39,4 @@ def login_page():
 def logout_page():
     """登出"""
     logout()
-    return redirect(url_for('auth.login'))
+    return redirect(url_for('auth.login_page'))

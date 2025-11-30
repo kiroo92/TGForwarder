@@ -89,6 +89,19 @@ def check_telegram_config():
     
     telegram_config['phone'] = phone
     
+    # 检查 Web API Key
+    auth_config = config.get('auth', {})
+    web_api_key = auth_config.get('api_key', '')
+    if not web_api_key:
+        print("\n请输入Web API Key（用于网页认证，留空则禁用认证）:")
+        web_api_key = input().strip()
+        auth_config['api_key'] = web_api_key
+        config['auth'] = auth_config
+        if web_api_key:
+            print("Web API Key 已设置，网页访问需要认证")
+        else:
+            print("Web API Key 未设置，网页将无需认证即可访问")
+    
     # 如果有任何配置被更新，保存配置文件
     config['telegram'] = telegram_config
     save_config(config)
